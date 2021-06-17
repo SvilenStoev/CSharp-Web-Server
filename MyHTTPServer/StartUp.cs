@@ -23,20 +23,27 @@ namespace MyHTTPServer
             Console.WriteLine($"Server started on port {port}...");
             Console.WriteLine("Waiting for client requests...");
 
-            var connection = await serverListener.AcceptTcpClientAsync();
+            while (true)
+            {
+                var connection = await serverListener.AcceptTcpClientAsync();
 
-            var networkStream = connection.GetStream();
+                var networkStream = connection.GetStream();
 
-            var response = @"HTTP/1.1 200 OK    
-Content-Length: 22          
+                var responseBody = "<h1>Здрасти!</h1>";
+                var contentLength = Encoding.UTF8.GetByteCount(responseBody);
 
-Hello from the server!";
+                var response = @$"HTTP/1.1 200 OK    
+Content-Length: {contentLength}    
+Content-Type: text/html; charset=UTF-8
 
-            byte[] responseByte = Encoding.UTF8.GetBytes(response);
+{responseBody}";
 
-            await networkStream.WriteAsync(responseByte);
+                byte[] responseByte = Encoding.UTF8.GetBytes(response);
 
-            connection.Close();
+                await networkStream.WriteAsync(responseByte);
+
+                connection.Close();
+            }
         }
     }
 }
