@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyWebServer.Server.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -34,9 +35,11 @@ namespace MyWebServer.Server
 
                 var networkStream = connection.GetStream();
 
-                var request = await ReadRequest(networkStream, connection);
+                var requestText = await ReadRequest(networkStream, connection);
 
-                Console.WriteLine(request);
+                Console.WriteLine(requestText);
+
+                var request = HttpRequest.Parse(requestText);
 
                 await WriteResponse(networkStream);
 
