@@ -32,7 +32,7 @@ namespace MyWebServer.Server
             while (true)
             {
                 var connection = await this.listener.AcceptTcpClientAsync();
-
+                 
                 var networkStream = connection.GetStream();
 
                 var requestText = await ReadRequest(networkStream, connection);
@@ -64,7 +64,7 @@ namespace MyWebServer.Server
 
                 if (totalBytesRead >= 10 * 1024)
                 {
-                    connection.Close();
+                    throw new InvalidOperationException("Request is too large (More than 10 MB).");
                 }
 
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
@@ -79,7 +79,8 @@ namespace MyWebServer.Server
             var responseBody = "<h1>Hey from my server!</h1>";
             var contentLength = Encoding.UTF8.GetByteCount(responseBody);
 
-            var response = @$"HTTP/1.1 200 OK    
+            var response = @$"
+HTTP/1.1 200 OK    
 Server: My Web Server
 Date: {DateTime.UtcNow.ToString("r")}
 Content-Length: {contentLength}    
