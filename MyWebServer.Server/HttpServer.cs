@@ -34,34 +34,49 @@ namespace MyWebServer.Server
 
                 var networkStream = connection.GetStream();
 
-                var bufferLenght = 1024;
-                var buffer = new byte[bufferLenght];
+                var request = await ReadRequest(networkStream, connection);
 
-                var totalBytesRead = 0;
+                Console.WriteLine(request);
 
-                var requestBuilder = new StringBuilder();
+                await WriteResponse(networkStream);
 
-                do
+                connection.Close();
+            }
+        }
+
+        private async Task<string> ReadRequest(NetworkStream networkStream, TcpClient connection)
+        {
+            var bufferLenght = 1024;
+            var buffer = new byte[bufferLenght];
+
+            var totalBytesRead = 0;
+
+            var requestBuilder = new StringBuilder();
+
+            do
+            {
+                var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLenght);
+
+                totalBytesRead += bytesRead;
+
+                if (totalBytesRead >= 10 * 1024)
                 {
-                    var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLenght);
+                    connection.Close();
+                }
 
-                    totalBytesRead += bytesRead;
+                requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
 
-                    if (totalBytesRead >= 10 * 1024)
-                    {
-                        connection.Close();
-                    }
+            } while (networkStream.DataAvailable);
 
-                    requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+            return requestBuilder.ToString();
+        }
 
-                } while (networkStream.DataAvailable);
+        private async Task WriteResponse(NetworkStream networkStream)
+        {
+            var responseBody = "<h1>Hey from my server!</h1>";
+            var contentLength = Encoding.UTF8.GetByteCount(responseBody);
 
-                Console.WriteLine(requestBuilder);
-
-                var responseBody = "<h1>Hey from my server!</h1>";
-                var contentLength = Encoding.UTF8.GetByteCount(responseBody);
-
-                var response = @$"HTTP/1.1 200 OK    
+            var response = @$"HTTP/1.1 200 OK    
 Server: My Web Server
 Date: {DateTime.UtcNow.ToString("r")}
 Content-Length: {contentLength}    
@@ -69,12 +84,9 @@ Content-Type: text/html; charset=UTF-8
 
 {responseBody}";
 
-                byte[] responseByte = Encoding.UTF8.GetBytes(response);
+            byte[] responseByte = Encoding.UTF8.GetBytes(response);
 
-                await networkStream.WriteAsync(responseByte);
-
-                connection.Close();
-            }
+            await networkStream.WriteAsync(responseByte);
         }
     }
 }
