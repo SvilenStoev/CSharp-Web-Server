@@ -10,15 +10,22 @@ namespace MyWebServer.Server.Responses
 {
     public class TextResponse : HttpResponse
     {
-        public TextResponse(string text) 
+        public TextResponse(string content, string contentType)
             : base(HttpStatusCode.OK)
         {
-            Guard.AgainstNull(text);
+            Guard.AgainstNull(content);
 
-            var contentLength = Encoding.UTF8.GetByteCount(text).ToString();
+            var contentLength = Encoding.UTF8.GetByteCount(content).ToString();
 
             this.Headers.Add("Content-Length", contentLength);
-            this.Headers.Add("Content-Type", "text/plain; charset=UTF-8");
+            this.Headers.Add("Content-Type", $"{contentType}");
+
+            this.Content = content;
+        }
+
+        public TextResponse(string text)
+            : this(text, "text/plain; charset=UTF-8")
+        {
         }
     }
 }

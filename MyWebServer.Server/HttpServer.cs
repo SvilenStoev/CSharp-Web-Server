@@ -1,4 +1,6 @@
 ﻿using MyWebServer.Server.Http;
+using MyWebServer.Server.Responses;
+using MyWebServer.Server.Routing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,22 @@ namespace MyWebServer.Server
         private readonly int port;
         private readonly TcpListener listener;
 
-        public HttpServer(string ipAddress, int port)
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
             this.listener = new TcpListener(this.ipAddress, this.port);
+        }
+
+        public HttpServer(int port, Action<IRoutingTable> routingTable)
+            : this("127.0.0.1", port, routingTable)
+        {
+        }
+
+        public HttpServer(Action<IRoutingTable> routingTable)
+            : this(6969, routingTable)
+
+        {
         }
 
         public async Task Start()
@@ -79,14 +92,18 @@ namespace MyWebServer.Server
             var responseBody = "<h1>Hey from my server!</h1>";
             var contentLength = Encoding.UTF8.GetByteCount(responseBody);
 
-            var response = @$"
-HTTP/1.1 200 OK    
-Server: My Web Server
-Date: {DateTime.UtcNow.ToString("r")}
-Content-Length: {contentLength}    
-Content-Type: text/html; charset=UTF-8
+            TextResponse textResponse = new TextResponse(responseBody, "text/html; charset=UTF-8");
 
-{responseBody}";
+//            var response = @$"
+//HTTP/1.1 200 OK    
+//Server: My Web Server
+//Date: {DateTime.UtcNow.ToString("r")}
+//Content-Length: {contentLength}    
+//Content-Type: text/html; charset=UTF-8
+
+//{responseBody}";
+
+            var response = textResponse.ToString();
 
             byte[] responseByte = Encoding.UTF8.GetBytes(response);
 

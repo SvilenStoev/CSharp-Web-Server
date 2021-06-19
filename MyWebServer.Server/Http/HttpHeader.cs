@@ -22,5 +22,9 @@ namespace MyWebServer.Server.Http
 
         public string Value { get; init; }
 
+        public override string ToString()
+        {
+            return $"{this.Name}: {this.Value}";
+        }
     }
 }
