@@ -8,6 +8,8 @@ namespace MyHttpServer
     {
         public static async Task Main(string[] args)
         {
+            int test = 1;
+
             string ipAddress = "127.0.0.1";
             int port = 6969;
 
