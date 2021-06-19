@@ -32,10 +32,10 @@ namespace MyWebServer.Server
             while (true)
             {
                 var connection = await this.listener.AcceptTcpClientAsync();
-                 
+
                 var networkStream = connection.GetStream();
 
-                var requestText = await ReadRequest(networkStream, connection);
+                var requestText = await ReadRequest(networkStream);
 
                 Console.WriteLine(requestText);
 
@@ -47,7 +47,7 @@ namespace MyWebServer.Server
             }
         }
 
-        private async Task<string> ReadRequest(NetworkStream networkStream, TcpClient connection)
+        private async Task<string> ReadRequest(NetworkStream networkStream)
         {
             var bufferLenght = 1024;
             var buffer = new byte[bufferLenght];
