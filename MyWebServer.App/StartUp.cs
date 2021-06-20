@@ -1,10 +1,8 @@
-﻿
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MyWebServer.Server;
 using MyWebServer.Server.Responses;
 
-namespace MyHttpServer
+namespace MyWebServer.App
 {
     public class StartUp
     {

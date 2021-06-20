@@ -1,11 +1,8 @@
-﻿using MyWebServer.Server.Common;
-using MyWebServer.Server.Http;
-using MyWebServer.Server.Responses;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MyWebServer.Server.Http;
+using MyWebServer.Server.Common;
+using MyWebServer.Server.Responses;
 
 namespace MyWebServer.Server.Routing
 {
@@ -65,7 +62,5 @@ namespace MyWebServer.Server.Routing
 
             return responseFunction(request);
         }
-
-
     }
 }
