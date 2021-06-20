@@ -21,37 +21,34 @@ namespace MyWebServer.Server.Routing
             [HttpMethod.Delete] = new()
         };
 
-        public IRoutingTable Map(string url, HttpMethod method, HttpResponse response)
+        public IRoutingTable Map(HttpMethod method, string path, HttpResponse response)
         {
-            return method switch
-            {
-                HttpMethod.Get => this.MapGet(url, response),
-                _ => throw new InvalidOperationException($"Method '{method}' is not supported!"),
-            };
-        }
-
-        public IRoutingTable MapGet(string url, HttpResponse response)
-        {
-            Guard.AgainstNull(url, nameof(url));
+            Guard.AgainstNull(path, nameof(path));
             Guard.AgainstNull(response, nameof(response));
 
-            this.routes[HttpMethod.Get][url] = response;
+            this.routes[method][path] = response;
 
             return this;
         }
 
+        public IRoutingTable MapGet(string path, HttpResponse response)
+        => Map(HttpMethod.Get, path, response);
+
+        public IRoutingTable MapPost(string path, HttpResponse response)
+     => Map(HttpMethod.Post, path, response);
+
         public HttpResponse MatchRequest(HttpRequest request)
         {
             var method = request.httpMethod;
-            var url = request.Url;
+            var path = request.Path;
 
             if (!this.routes.ContainsKey(method)
-                || !this.routes[method].ContainsKey(url))
+                || !this.routes[method].ContainsKey(path))
             {
                 return new NotFoundResponse();
             }
 
-            return this.routes[method][url];
+            return this.routes[method][path];
         }
     }
 }

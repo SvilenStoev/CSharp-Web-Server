@@ -12,7 +12,9 @@ namespace MyWebServer.Server.Http
 
         public HttpMethod httpMethod { get; private set; }
 
-        public string Url { get; private set; }
+        public string Path { get; private set; }
+
+        public Dictionary<string, string> Query { get; private set; }
 
         public HttpHeaderCollection Headers { get; private set; }
 
@@ -28,6 +30,8 @@ namespace MyWebServer.Server.Http
 
             var url = startLine[1];
 
+            var (path, query) = ParseUrl(url);
+
             var headerLines = lines.Skip(1).ToArray();
 
             var headers = ParseHttpHeaders(headerLines);
@@ -39,7 +43,8 @@ namespace MyWebServer.Server.Http
             return new HttpRequest
             {
                 httpMethod = method,
-                Url = url,
+                Path = path,
+                Query = query,
                 Headers = headers,
                 Body = body
             };
@@ -84,5 +89,27 @@ namespace MyWebServer.Server.Http
             };
         }
 
+        private static (string, Dictionary<string, string>) ParseUrl(string url)
+        {
+            var urlParts = url.Split('?', 2);
+            var path = urlParts[0];
+
+            var query = new Dictionary<string, string>();
+
+            if (urlParts.Length > 1)
+            {
+                query = ParseQuery(urlParts[1]);
+            }
+
+            return (path, query);
+        }
+
+        // /Svilen? FirstName=Svilen & LastName=Stoev
+
+        private static Dictionary<string, string> ParseQuery(string queryString) => queryString
+                .Split('&')
+                .Select(qsp => qsp.Split('='))
+                .Where(part => part.Length == 2)
+                .ToDictionary(part => part[0], part => part[1]);
     }
 }
