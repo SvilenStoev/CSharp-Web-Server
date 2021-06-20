@@ -18,13 +18,13 @@ namespace MyWebServer.Server.Responses
             var contentLength = Encoding.UTF8.GetByteCount(content).ToString();
 
             this.Headers.Add("Content-Length", contentLength);
-            this.Headers.Add("Content-Type", $"{contentType}");
+            this.Headers.Add("Content-Type", contentType);
 
             this.Content = content;
         }
 
-        public TextResponse(string text)
-            : this(text, "text/plain; charset=UTF-8")
+        public TextResponse(string content)
+            : this(content, "text/plain; charset=UTF-8")
         {
         }
     }

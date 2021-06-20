@@ -17,11 +17,15 @@ namespace MyWebServer.Server
         private readonly int port;
         private readonly TcpListener listener;
 
-        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
+        private readonly RoutingTable routingTable;
+
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTableConfiguration)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
             this.listener = new TcpListener(this.ipAddress, this.port);
+
+            routingTableConfiguration(this.routingTable = new RoutingTable());
         }
 
         public HttpServer(int port, Action<IRoutingTable> routingTable)
@@ -54,7 +58,9 @@ namespace MyWebServer.Server
 
                 var request = HttpRequest.Parse(requestText);
 
-                await WriteResponse(networkStream);
+                var response = this.routingTable.MatchRequest(request);
+
+                await WriteResponse(networkStream, response);
 
                 connection.Close();
             }
@@ -87,25 +93,35 @@ namespace MyWebServer.Server
             return requestBuilder.ToString();
         }
 
-        private async Task WriteResponse(NetworkStream networkStream)
+        private async Task WriteResponse(NetworkStream networkStream, HttpResponse response)
         {
-            var responseBody = "<h1>Hey from my server!</h1>";
+            var responseBody = string.Empty;
+
+            if (response.Content == null)
+            {
+                responseBody = "";
+            }
+            else
+            {
+                responseBody = response.Content.ToString();
+            }
+
             var contentLength = Encoding.UTF8.GetByteCount(responseBody);
 
-            TextResponse textResponse = new TextResponse(responseBody, "text/html; charset=UTF-8");
+            //TextResponse textResponse = new TextResponse(responseBody, "text/html; charset=UTF-8");
 
-//            var response = @$"
-//HTTP/1.1 200 OK    
-//Server: My Web Server
-//Date: {DateTime.UtcNow.ToString("r")}
-//Content-Length: {contentLength}    
-//Content-Type: text/html; charset=UTF-8
+            //            var response = @$"
+            //HTTP/1.1 200 OK    
+            //Server: My Web Server
+            //Date: {DateTime.UtcNow.ToString("r")}
+            //Content-Length: {contentLength}    
+            //Content-Type: text/html; charset=UTF-8
 
-//{responseBody}";
+            //{responseBody}";
 
-            var response = textResponse.ToString();
+            var textResponse = response.ToString();
 
-            byte[] responseByte = Encoding.UTF8.GetBytes(response);
+            byte[] responseByte = Encoding.UTF8.GetBytes(textResponse);
 
             await networkStream.WriteAsync(responseByte);
         }
