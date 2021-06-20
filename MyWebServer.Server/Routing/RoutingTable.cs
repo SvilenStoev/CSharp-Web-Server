@@ -48,7 +48,7 @@ namespace MyWebServer.Server.Routing
             if (!this.routes.ContainsKey(method)
                 || !this.routes[method].ContainsKey(url))
             {
-                return new BadRequestResponse();
+                return new NotFoundResponse();
             }
 
             return this.routes[method][url];

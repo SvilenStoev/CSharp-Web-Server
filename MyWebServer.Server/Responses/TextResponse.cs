@@ -8,23 +8,10 @@ using System.Threading.Tasks;
 
 namespace MyWebServer.Server.Responses
 {
-    public class TextResponse : HttpResponse
+    public class TextResponse : ContentResponse
     {
-        public TextResponse(string content, string contentType)
-            : base(HttpStatusCode.OK)
-        {
-            Guard.AgainstNull(content);
-
-            var contentLength = Encoding.UTF8.GetByteCount(content).ToString();
-
-            this.Headers.Add("Content-Length", contentLength);
-            this.Headers.Add("Content-Type", contentType);
-
-            this.Content = content;
-        }
-
         public TextResponse(string content)
-            : this(content, "text/plain; charset=UTF-8")
+            : base(content, "text/plain; charset=UTF-8")
         {
         }
     }

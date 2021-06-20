@@ -95,30 +95,6 @@ namespace MyWebServer.Server
 
         private async Task WriteResponse(NetworkStream networkStream, HttpResponse response)
         {
-            var responseBody = string.Empty;
-
-            if (response.Content == null)
-            {
-                responseBody = "";
-            }
-            else
-            {
-                responseBody = response.Content.ToString();
-            }
-
-            var contentLength = Encoding.UTF8.GetByteCount(responseBody);
-
-            //TextResponse textResponse = new TextResponse(responseBody, "text/html; charset=UTF-8");
-
-            //            var response = @$"
-            //HTTP/1.1 200 OK    
-            //Server: My Web Server
-            //Date: {DateTime.UtcNow.ToString("r")}
-            //Content-Length: {contentLength}    
-            //Content-Type: text/html; charset=UTF-8
-
-            //{responseBody}";
-
             var textResponse = response.ToString();
 
             byte[] responseByte = Encoding.UTF8.GetBytes(textResponse);
